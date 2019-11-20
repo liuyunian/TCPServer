@@ -12,3 +12,4 @@ SET(SRC
     )
 
 ADD_EXECUTABLE(TCPServer ${SRC})
+TARGET_LINK_LIBRARIES(TCPServer tools_config tools_base pthread)

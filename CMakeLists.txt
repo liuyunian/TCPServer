@@ -4,6 +4,7 @@ PROJECT(TCPServer)
 ADD_COMPILE_OPTIONS(-std=c++11)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 
+# ===================== source =====================
 SET(SRC 
     app/main.cpp
     # net/net.cpp
@@ -11,5 +12,10 @@ SET(SRC
     # signal/signal.cpp
     )
 
+# ===================== build =====================
 ADD_EXECUTABLE(TCPServer ${SRC})
 TARGET_LINK_LIBRARIES(TCPServer tools_config tools_base pthread)
+
+# ===================== install =====================
+# TCPServer -- install path = /usr/local/bin
+INSTALL(TARGETS TCPServer RUNTIME DESTINATION bin)

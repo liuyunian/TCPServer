@@ -1,11 +1,24 @@
 #include <iostream>
+#include <memory>
 
-#include <unistd.h>
+#include <unistd.h> // getopt
 
 #include <tools/base/Singleton.h>
 #include <tools/config/ConfigFile.h>
+#include <tools/log/log.h>
+#include <tools/log/LogFile.h>
 
 #define CONFIG_FILE_PATH "server.conf"               // 默认的配置文件路径
+
+std::unique_ptr<LogFile> g_logFile;
+
+void output_func(const char *msg, int len){
+    g_logFile->append(msg, len);
+}
+
+void flush_func(){
+    g_logFile->flush();
+}
 
 static void 
 printUsage(std::ostream &os, const std::string programName){
@@ -16,7 +29,6 @@ printUsage(std::ostream &os, const std::string programName){
         << "    -V          Display version information"
         << std::endl;
 }
-
 
 int main(int argc, char* argv[]){
     int opt;
@@ -40,13 +52,19 @@ int main(int argc, char* argv[]){
 
     ConfigFile &cf = Singleton<ConfigFile>::instance(); // 采用单例模式创建配置文件解析对象
     if(!cf.load(configFilePath)){
-        std::cerr << "Failed to load configFile: " << configFilePath << std::endl;
-        exit(1);
+        LOG_FATAL("Failed to load configFile: %s", configFilePath);
     }
 
-    std::cout << cf.get<std::string>("LogFile") << '\n';
-    std::cout << cf.get<int>("WorkProcess") << '\n';
-    std::cout << std::boolalpha << cf.get<bool>("Daemon") << std::endl;
+    std::string logFile = cf.get<std::string>("LogFile");
+    logFile.append(::basename(argv[0]));
+
+    g_logFile.reset(new LogFile(logFile.c_str(), 200*1000));
+    Log::set_output(output_func);
+    Log::set_flush(flush_func);
+
+    LOG_INFO("LogFile = %s", cf.get<std::string>("LogFile").c_str());
+    LOG_INFO("WorkProcess = %d", cf.get<int>("WorkProcess"));
+    LOG_INFO("Daemon = %b", cf.get<bool>("Daemon"));
 
     return 0;
 }

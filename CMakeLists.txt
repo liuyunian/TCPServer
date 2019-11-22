@@ -14,7 +14,7 @@ SET(SRC
 
 # ===================== build =====================
 ADD_EXECUTABLE(TCPServer ${SRC})
-TARGET_LINK_LIBRARIES(TCPServer tools_config tools_base pthread)
+TARGET_LINK_LIBRARIES(TCPServer tools_config tools_log tools_base pthread)
 
 # ===================== install =====================
 # TCPServer -- install path = /usr/local/bin

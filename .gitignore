@@ -8,8 +8,11 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 
+# logs
+/logs
+
 # build
 /_build
 
 # vscode
-/vscode
+/.vscode

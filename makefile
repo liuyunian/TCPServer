@@ -1,12 +1,12 @@
 BUILD_DIR = ./_build
-TEST_DIR = ./test
+LOG_DIR = ./test
 RM = rm -rf
 
 all: build
 	cd $(BUILD_DIR); make
 
 build:
-	mkdir $(BUILD_DIR); cd $(BUILD_DIR); cmake -D CMAKE_CXX_COMPILER=/usr/bin/g++ ..
+	mkdir $(BUILD_DIR) $(LOG_DIR); cd $(BUILD_DIR); cmake -D CMAKE_CXX_COMPILER=/usr/bin/g++ ..
 
 install:
 	cd $(BUILD_DIR); sudo make install

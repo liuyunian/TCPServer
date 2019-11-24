@@ -8,7 +8,8 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 SET(SRC 
     app/main.cpp
     # net/net.cpp
-    # proc/process_cycle.cpp
+    proc/Process.cpp
+    proc/process_loop.cpp
     # signal/signal.cpp
     )
 

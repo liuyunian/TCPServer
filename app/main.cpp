@@ -8,17 +8,9 @@
 #include <tools/log/log.h>
 #include <tools/log/LogFile.h>
 
+#include "proc/Process.h"
+
 #define CONFIG_FILE_PATH "server.conf"               // 默认的配置文件路径
-
-std::unique_ptr<LogFile> g_logFile;
-
-void output_func(const char *msg, int len){
-    g_logFile->append(msg, len);
-}
-
-void flush_func(){
-    g_logFile->flush();
-}
 
 static void 
 printUsage(std::ostream &os, const std::string programName){
@@ -55,16 +47,13 @@ int main(int argc, char* argv[]){
         LOG_FATAL("Failed to load configFile: %s", configFilePath);
     }
 
-    std::string logFile = cf.get<std::string>("LogFile");
-    logFile.append(::basename(argv[0]));
+    std::string logFilePath = cf.get<std::string>("LogFile");
+    logFilePath.append(::basename(argv[0]));
+    LogFile lf(logFilePath.c_str(), 200*1000);
+    Log::set_output(std::bind(&LogFile::append, &lf, std::placeholders::_1, std::placeholders::_2));
+    Log::set_flush(std::bind(&LogFile::flush, &lf));
 
-    g_logFile.reset(new LogFile(logFile.c_str(), 200*1000));
-    Log::set_output(output_func);
-    Log::set_flush(flush_func);
-
-    LOG_INFO("LogFile = %s", cf.get<std::string>("LogFile").c_str());
-    LOG_INFO("WorkProcess = %d", cf.get<int>("WorkProcess"));
-    LOG_INFO("Daemon = %b", cf.get<bool>("Daemon"));
+    master_process_loop(argv);
 
     return 0;
 }

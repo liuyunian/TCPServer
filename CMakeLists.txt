@@ -10,7 +10,10 @@ SET(SRC
     # net/net.cpp
     proc/Process.cpp
     proc/process_loop.cpp
-    # signal/signal.cpp
+    signal/signal_handle.cpp
+    signal/SignalHandler.cpp
+    signal/SignalMask.cpp
+    signal/SignalSet.cpp
     )
 
 # ===================== build =====================

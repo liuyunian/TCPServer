@@ -9,10 +9,9 @@
 
 #include "proc/Process.h"
 
-Process::Process(const std::string &name, char **argv, sigset_t sigset, const ProcessCallback &callback, bool parentExit) : 
+Process::Process(const std::string &name, char **argv, const ProcessCallback &callback, bool parentExit) : 
     m_name(name),
     m_argv(argv),
-    m_sigset(sigset),
     m_callback(std::move(callback))
 {
     m_pid = ::fork();
@@ -31,9 +30,9 @@ Process::Process(const std::string &name, char **argv, sigset_t sigset, const Pr
 
 void Process::loop(){
     // [1] 设置信号屏蔽
-    if(::sigprocmask(SIG_SETMASK, &m_sigset, NULL) < 0){
-        LOG_SYSFATAL("Failed to set sigset in Process::loop()");
-    }
+    m_mask.clear();
+    // ...
+    m_mask.update();
 
     // [2] 关联日志文件
     ConfigFile &cf = Singleton<ConfigFile>::instance();

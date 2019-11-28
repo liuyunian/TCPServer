@@ -11,8 +11,8 @@ SignalHandler::SignalHandler(SignalMask &mask) :
 
 void SignalHandler::register_signal(int signo, SignalSet set, SignalCallback cb){
   if(!m_mask.contain(signo)){
-      m_mask.add(signo);
-      m_mask.update();
+    m_mask.add(signo);
+    m_mask.update();
   }
 
   update(signo, set, cb);
@@ -29,6 +29,6 @@ void SignalHandler::update(int signo, SignalSet set, SignalCallback cb){
   sa.sa_mask = set.get();
 
   if(::sigaction(signo, &sa, nullptr) < 0){
-      LOG_SYSFATAL("Failed to update handler for %s in SignalHandler::update()", strsignal(signo));
+    LOG_SYSFATAL("Failed to update handler for %s in SignalHandler::update()", strsignal(signo));
   }
 }

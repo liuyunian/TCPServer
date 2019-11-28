@@ -14,12 +14,12 @@ SET(SRC
     signal/SignalHandler.cpp
     signal/SignalMask.cpp
     signal/SignalSet.cpp
-    )
+  )
 
 # ===================== build =====================
-ADD_EXECUTABLE(TCPServer ${SRC})
-TARGET_LINK_LIBRARIES(TCPServer tools_config tools_log tools_base pthread)
+ADD_EXECUTABLE(server ${SRC})
+TARGET_LINK_LIBRARIES(server tools_config tools_log tools_base pthread)
 
 # ===================== install =====================
 # TCPServer -- install path = /usr/local/bin
-INSTALL(TARGETS TCPServer RUNTIME DESTINATION bin)
+INSTALL(TARGETS server RUNTIME DESTINATION bin)

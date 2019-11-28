@@ -1,5 +1,5 @@
 BUILD_DIR = ./_build
-LOG_DIR = ./logs
+LOG_DIR = ./_logs
 RM = rm -rf
 
 all: build

@@ -1,4 +1,4 @@
-# TCPServer
+# serverd
 C++实现的TCP服务器框架  
 采用master-worker + epoll + ThreadPool实现高并发
 
@@ -23,8 +23,8 @@ C++实现的TCP服务器框架
 4. 清除: make clean
 
 ### 测试
-* 编译完成未安装情况下: ./_build/TCPServer -h
-* 已安装情况下: TCPServer -h
+* 编译完成未安装情况下: ./_build/server -h
+* 已安装情况下: server -h
 
 ## 修改日志
 **2019-11-16 目录结构和构建脚本**  
@@ -43,5 +43,10 @@ master主进程创建worker子进程，worker进程数可以通过配置文件�
 每个进程独占一个日志文件，日志文件名中有进程ID  
 提供了修改进程标题(ps命令CMD栏显示的内容)的接口
 
-**2019-11-27 信号处理**
+**2019-11-27 信号处理**  
+封装了信号集SignalSet、进程信号屏蔽字SignalMask、信号处理注册类SignalHandler  
+master进程注册了SIGCHLD信号处理函数，避免了worker进程终止之后变为僵尸进程
 
+**2019-11-28 守护进程**  
+参考nginx源码实现了程序以守护进程方式运行  
+为了代码的统一性取消了是否以守护进程方式运行的选项，选择只能以守护进程方式运行 

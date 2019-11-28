@@ -9,7 +9,7 @@ compile_commands.json
 CTestTestfile.cmake
 
 # logs
-/logs
+/_logs
 
 # build
 /_build

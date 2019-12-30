@@ -22,8 +22,8 @@ C++实现的TCP服务器框架
 4. 清除: make clean
 
 ### 测试
-* 编译完成未安装情况下: ./_build/server -h
-* 已安装情况下: server -h
+* 编译完成未安装情况下: ./_build/serverd -h
+* 已安装情况下: serverd -h
 
 ## 修改日志
 **2019-11-16 目录结构和构建脚本**  
@@ -31,7 +31,7 @@ C++实现的TCP服务器框架
 项目的编译工具为cmake
 
 **2019-11-20 配置文件**  
-采用tools-cxx的config库来解析项目中的配置文件[server.conf](/server.conf)
+采用tools-cxx的config库来解析项目中的配置文件[serverd.conf](/serverd.conf)
 
 **2019-11-22 日志**  
 采用tools-cxx的log多线程日志库  
@@ -48,4 +48,8 @@ master进程注册了SIGCHLD信号处理函数，避免了worker进程终止之�
 
 **2019-11-28 守护进程**  
 参考nginx源码实现了程序以守护进程方式运行  
-为了代码的统一性取消了是否以守护进程方式运行的选项，选择只能以守护进程方式运行 
+为了代码的统一性取消了是否以守护进程方式运行的选项，只能以守护进程方式运行 
+
+**2019-12-30 接收数据**
+采用了tools-cxx封装的poller、socket实现了每个worker进程以Reactor模式运行并监听socket事件
+参考muduo网络库封装了TCPConnection和TCPServer，以注册回调函数方式处理业务逻辑

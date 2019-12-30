@@ -15,7 +15,7 @@ Process::Process(const std::string &name, char **argv, const ProcessLoop &loop) 
     m_loop(std::move(loop))
 {}
 
-void Process::start(int checkEveryN, bool parentExit){
+void Process::start(bool parentExit){
   m_pid = ::fork();
   if(m_pid == -1){
     LOG_SYSFATAL("Failed to create child process in Process::start(bool)");
@@ -29,7 +29,8 @@ void Process::start(int checkEveryN, bool parentExit){
     std::string logFilePath = cf.get<std::string>("LogFilePath");
     logFilePath.append(m_name);
     int logFileSize = cf.get<int>("LogFileSize");
-    m_logFile.reset(new LogFile(logFilePath, logFileSize, checkEveryN));
+    m_logFile.reset(new LogFile(logFilePath, logFileSize)); // 默认的flushInterval = 3s, checkEveryN = 1024
+    Log::set_level(cf.get<std::string>("LogLevel"));
     Log::set_output(std::bind(&LogFile::append, m_logFile.get(), std::placeholders::_1, std::placeholders::_2));
     Log::set_flush(std::bind(&LogFile::flush, m_logFile.get()));
 
@@ -69,6 +70,11 @@ void Process::set_title(){
 
   // 拷贝标题
   strncpy(m_argv[0], m_name.c_str(), m_name.size()); 
+}
+
+void Process::set_mask(int signal){
+  m_mask.add(signal);
+  m_mask.update();
 }
 
 void Process::set_mask(const std::initializer_list<int> &signals){

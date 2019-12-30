@@ -7,19 +7,19 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 # ===================== source =====================
 SET(SRC 
     app/main.cpp
-    # net/net.cpp
+    app/signal_handle.cpp
+    net/TCPConnection.cpp
+    net/TCPServer.cpp
     proc/Process.cpp
-    proc/process_loop.cpp
-    signal/signal_handle.cpp
     signal/SignalHandler.cpp
     signal/SignalMask.cpp
     signal/SignalSet.cpp
   )
 
 # ===================== build =====================
-ADD_EXECUTABLE(server ${SRC})
-TARGET_LINK_LIBRARIES(server tools_config tools_log tools_base pthread)
+ADD_EXECUTABLE(serverd ${SRC})
+TARGET_LINK_LIBRARIES(serverd tools_poller tools_socket tools_config tools_log tools_base pthread)
 
 # ===================== install =====================
 # TCPServer -- install path = /usr/local/bin
-INSTALL(TARGETS server RUNTIME DESTINATION bin)
+INSTALL(TARGETS serverd RUNTIME DESTINATION bin)

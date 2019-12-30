@@ -15,12 +15,6 @@
 class Process;
 typedef std::shared_ptr<Process> ProcessPtr;
 
-namespace process {
-  void daemon_process_loop(ProcessPtr);
-
-  void worker_process_loop(ProcessPtr);
-};
-
 class Process : noncopyable,
                 public std::enable_shared_from_this<Process>
 {
@@ -30,7 +24,9 @@ public:
   Process(const std::string &name, char **argv, const ProcessLoop &loop);
   ~Process() = default;
 
-  void start(int checkEveryN = 1024, bool parentExit = false);
+  void start(bool parentExit = false);
+
+  void set_mask(int signal);
 
   void set_mask(const std::initializer_list<int>& signals);
 
@@ -42,6 +38,10 @@ public:
 
   char** get_argv(){
     return m_argv;
+  }
+
+  LogFile* get_logFile(){
+    return m_logFile.get();
   }
 
 private:

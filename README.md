@@ -1,6 +1,6 @@
 # serverd
 C++实现的TCP服务器框架  
-采用master-worker + epoll + ThreadPool实现高并发
+采用master-worker + Reactor + ThreadPool实现高并发
 
 ## 目录结构
 * app: main.cpp所在的目录
@@ -28,13 +28,13 @@ C++实现的TCP服务器框架
 ## 修改日志
 **2019-11-16 目录结构和构建脚本**  
 目录结构如上所示  
-项目的编译工具为cmake
+项目的构建工具为cmake
 
 **2019-11-20 配置文件**  
-采用tools-cxx的config库来解析项目中的配置文件[serverd.conf](/serverd.conf)
+采用tools-cxx的[config库](https://github.com/liuyunian/tools-cxx/blob/master/tools/config/README.md)来解析项目中的配置文件[serverd.conf](/serverd.conf)
 
 **2019-11-22 日志**  
-采用tools-cxx的log多线程日志库  
+采用tools-cxx的[多线程日志库](https://github.com/liuyunian/tools-cxx/blob/master/tools/log/README.md)  
 日志信息写入日志文件中，日志文件的路径可在配置文件中指定，默认存储在项目根目录下的logs目录中
 
 **2019-11-24 master-worker**  
@@ -50,6 +50,6 @@ master进程注册了SIGCHLD信号处理函数，避免了worker进程终止之�
 参考nginx源码实现了程序以守护进程方式运行  
 为了代码的统一性取消了是否以守护进程方式运行的选项，只能以守护进程方式运行 
 
-**2019-12-30 接收数据**
-采用了tools-cxx封装的poller、socket实现了每个worker进程以Reactor模式运行并监听socket事件
+**2019-12-30 接收数据**  
+采用了tools-cxx封装的[poller](https://github.com/liuyunian/tools-cxx/blob/master/tools/poller/README.md)、[Socket](https://github.com/liuyunian/tools-cxx/blob/master/tools/socket/README.md)实现了每个worker进程以Reactor模式运行并监听socket事件  
 参考muduo网络库封装了TCPConnection和TCPServer，以注册回调函数方式处理业务逻辑

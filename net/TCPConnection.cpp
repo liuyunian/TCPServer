@@ -24,17 +24,32 @@ void TCPConnection::connect_established(){
 }
 
 void TCPConnection::handle_read(){
-  char buf[65536];
-  ssize_t len = m_socket.read(buf, sizeof(buf));
-  if(len > 0){
-    m_messageCallback(shared_from_this(), buf, len);
+  char extrabuf[65536];
+  struct iovec vec[2];
+  const size_t writable = m_inputBuffer.writable_bytes();
+  vec[0].iov_base = m_inputBuffer.writable_index();
+  vec[0].iov_len = writable;
+  vec[1].iov_base = extrabuf;
+  vec[1].iov_len = sizeof extrabuf;
+  const int iovcnt = (writable < sizeof extrabuf) ? 2 : 1;
+  const ssize_t len = m_socket.readv(vec, iovcnt);
+  if(len < 0){
+    LOG_SYSERR("read error in TcpConnection::handle_read");
+    handle_error();
   }
   else if(len == 0){
-    LOG_INFO("client disconnection");
     handle_close();
   }
   else{
-    LOG_SYSERR("read error in TcpConnection::handle_read");
+    if(static_cast<size_t>(len) <= writable){
+      m_inputBuffer.adjust_writer_index(len);
+    }
+    else{
+      m_inputBuffer.adjust_writer_index(writable);
+      m_inputBuffer.append(extrabuf, len - writable);
+    }
+
+    m_messageCallback(shared_from_this(), &m_inputBuffer);
   }
 }
 

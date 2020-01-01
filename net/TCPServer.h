@@ -15,7 +15,7 @@ class InetAddress;
 
 class TCPServer : noncopyable {
 public:
-  TCPServer(const InetAddress &localAddr);
+  explicit TCPServer(const InetAddress &localAddr);
 
   ~TCPServer() = default;
 

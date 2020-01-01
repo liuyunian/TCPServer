@@ -14,13 +14,12 @@ static const int kTimeoutMs = 10000;
 
 TCPServer::TCPServer(const InetAddress &localAddr) : 
   m_poller(Poller::new_default_Poller()),
-  m_serverSocket(sockets::create_nonblocking_socket(sockets::IPv4)),
+  m_serverSocket(localAddr),
   m_listenChannel(m_poller.get(), m_serverSocket.get_sockfd()),
   m_idlefd(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
   m_serverSocket.set_reuse_address(true); // 地址可以重复使用
   m_serverSocket.set_reuse_port(true);    // 端口可以重复使用
-  m_serverSocket.bind(localAddr);
   m_serverSocket.listen();
 
   m_listenChannel.set_read_callback(std::bind(&TCPServer::new_connection, this));

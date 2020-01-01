@@ -53,3 +53,9 @@ master进程注册了SIGCHLD信号处理函数，避免了worker进程终止之�
 **2019-12-30 接收数据**  
 采用了tools-cxx封装的[poller](https://github.com/liuyunian/tools-cxx/blob/master/tools/poller/README.md)、[Socket](https://github.com/liuyunian/tools-cxx/blob/master/tools/socket/README.md)实现了每个worker进程以Reactor模式运行并监听socket事件  
 参考muduo网络库封装了TCPConnection和TCPServer，以注册回调函数方式处理业务逻辑
+
+**2020-01-01 应用层缓冲区**  
+参考muduo网络库增加了应用层缓冲区类Buffer  
+每个TCPConnection对象都有一个输入缓冲区和一个输出缓冲区，输入和输出缓冲区都是必须的：
+* 输入缓冲区应对所接收数据包不完整的情况
+* 输出缓冲区应对发送数据时一次系统调用（write(2)）发送不完的情况

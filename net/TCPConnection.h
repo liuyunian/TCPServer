@@ -10,6 +10,7 @@
 #include <tools/poller/Channel.h>
 
 #include "net/Callbacks.h"
+#include "net/Buffer.h"
 
 class Poller;
 
@@ -52,6 +53,10 @@ private:
   State m_state;
   ConnSocket m_socket;
   Channel m_channel;
+
+  Buffer m_inputBuffer;
+  Buffer m_outputBuffer;
+
   ConnectionCallback m_connCallback;
   MessageCallback m_messageCallback;
   CloseCallback m_closeCallback;

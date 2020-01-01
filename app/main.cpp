@@ -15,6 +15,7 @@
 #include "signal/SignalHandler.h"
 #include "net/TCPServer.h"
 #include "net/Callbacks.h"
+#include "net/Buffer.h"
 
 static void 
 onConnection(const TCPConnectionPtr& conn){
@@ -22,8 +23,9 @@ onConnection(const TCPConnectionPtr& conn){
 }
 
 static void 
-onMessage(const TCPConnectionPtr& conn,  const char* data, ssize_t len){
-  LOG_INFO("onMessage(): pid = %d, received %d bytes from connection", getpid(), len);
+onMessage(const TCPConnectionPtr& conn, Buffer *buf){
+  std::string msg(buf->retrieve_all_as_string()); 
+  LOG_INFO("onMessage(): pid = %d, received %d bytes from connection", getpid(), msg.size());
 }
 
 static void 

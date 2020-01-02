@@ -23,6 +23,51 @@ void TCPConnection::connect_established(){
   m_connCallback(shared_from_this());
 }
 
+void TCPConnection::send(std::string &&msg){
+  send(msg.c_str(), static_cast<ssize_t>(msg.size()));
+}
+
+void TCPConnection::send(const void *msg, ssize_t len){
+  if(m_state == Disconnected){
+    LOG_WARN("disconnected, give up writing");
+    return;
+  }
+
+  ssize_t nwrote = 0;
+  ssize_t remaining = len;
+  if(!m_channel.is_writing() && m_outputBuffer.readable_bytes() == 0){
+    nwrote = m_socket.write(msg, len);
+    if(nwrote < 0){
+      nwrote = 0;
+      if(errno != EWOULDBLOCK){
+        LOG_SYSERR("Failed to send msg in TCPConnection::send()");
+      }
+    }
+    else{
+      remaining -= nwrote;
+    }
+  }
+
+  assert(remaining <= len);
+  if(remaining > 0){
+    size_t oldLen = m_outputBuffer.readable_bytes();
+    m_outputBuffer.append(static_cast<const char*>(msg)+nwrote, remaining);
+    if (!m_channel.is_writing())
+    {
+      m_channel.enable_writing();
+    }
+  }
+}
+
+void TCPConnection::shutdown(){
+  if(m_state == Connected){
+    m_state = Disconnecting;
+    if(!m_channel.is_writing()){
+      m_socket.shutdown_write();
+    }
+  }
+}
+
 void TCPConnection::handle_read(){
   char extrabuf[65536];
   struct iovec vec[2];
@@ -50,6 +95,24 @@ void TCPConnection::handle_read(){
     }
 
     m_messageCallback(shared_from_this(), &m_inputBuffer);
+  }
+}
+
+void TCPConnection::handle_write(){
+  if(m_channel.is_writing()){
+    ssize_t n = m_socket.write(m_outputBuffer.readable_index(), m_outputBuffer.readable_bytes());
+    if(n < 0){
+      LOG_SYSERR("TCPConnection::handle_write()");
+    }
+    else{
+      m_outputBuffer.retrieve(n);
+      if(m_outputBuffer.readable_bytes() == 0){
+        m_channel.disable_writing();
+        if(m_state == Disconnecting){
+          m_socket.shutdown_write();
+        }
+      }
+    }
   }
 }
 

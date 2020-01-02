@@ -59,3 +59,7 @@ master进程注册了SIGCHLD信号处理函数，避免了worker进程终止之�
 每个TCPConnection对象都有一个输入缓冲区和一个输出缓冲区，输入和输出缓冲区都是必须的：
 * 输入缓冲区应对所接收数据包不完整的情况
 * 输出缓冲区应对发送数据时一次系统调用（write(2)）发送不完的情况
+
+**2020-01-02 发送数据**  
+TCPConnection增加了send()函数  
+TCPConnection增加了shutdown()函数，服务器端可以主动关闭连接

@@ -16,16 +16,17 @@
 #include "net/TCPServer.h"
 #include "net/Callbacks.h"
 #include "net/Buffer.h"
+#include "net/TCPConnection.h"
 
 static void 
-onConnection(const TCPConnectionPtr& conn){
+onConnection(const TCPConnectionPtr& tcpc){
   LOG_INFO("onConnection(): pid = %d", getpid());
 }
 
 static void 
-onMessage(const TCPConnectionPtr& conn, Buffer *buf){
-  std::string msg(buf->retrieve_all_as_string()); 
-  LOG_INFO("onMessage(): pid = %d, received %d bytes from connection", getpid(), msg.size());
+onMessage(const TCPConnectionPtr& tcpc, Buffer *buf){
+  LOG_INFO("onMessage(): pid = %d, received %d bytes from connection", getpid(), buf->readable_bytes());
+  tcpc->send(buf->retrieve_all_as_string());
 }
 
 static void 

@@ -35,11 +35,15 @@ public:
 
   void connect_established();
 
+  void send(std::string &&msg);
+  void send(const void *msg, ssize_t len);
+
+  void shutdown();
+
 private:
   void handle_read();
-
+  void handle_write();
   void handle_close();
-
   void handle_error();
 
   enum State {

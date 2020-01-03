@@ -29,6 +29,10 @@ public:
     m_messageCallback = mcb;
   }
 
+  void set_writeComplete_callback(const WriteCompleteCallback &wccb){
+    m_writeCompleteCallback = wccb;
+  }
+
 private:
   void new_connection();
 
@@ -44,6 +48,7 @@ private:
 
   ConnectionCallback m_connCallback;
   MessageCallback m_messageCallback;
+  WriteCompleteCallback m_writeCompleteCallback;
 };
 
 #endif // TCPSERVER_H_

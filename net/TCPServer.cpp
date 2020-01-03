@@ -43,6 +43,7 @@ void TCPServer::new_connection(){
     tcpc->set_connection_callback(m_connCallback);
     tcpc->set_message_callback(m_messageCallback);
     tcpc->set_close_callback(std::bind(&TCPServer::remove_connection, this, std::placeholders::_1));
+    tcpc->set_writeComplete_callback(m_writeCompleteCallback);
     tcpc->connect_established();
   }
   catch(const Exception &e){

@@ -63,3 +63,8 @@ master进程注册了SIGCHLD信号处理函数，避免了worker进程终止之�
 **2020-01-02 发送数据**  
 TCPConnection增加了send()函数  
 TCPConnection增加了shutdown()函数，服务器端可以主动关闭连接
+
+**2020-01-03 增加高/低水位回调函数**  
+参考muduo网络库给TCPConnection增加了如下两个回调函数，作用是：让上层应用调节发送数据速率，避免数据在本地内存中堆积
+* WriteCommpleteCallback（低水位回调函数）：当直接调用write(2)发送的数据或者输出缓冲区的数据都写入内核发送缓冲区之后则执行该回调
+* HighWaterMaskCallback（高水位回调函数）：当输出缓冲区的数据加上目前要发送的数据大于一个高水位阈值时则执行该回调  

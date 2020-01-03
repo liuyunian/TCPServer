@@ -8,7 +8,8 @@
 TCPConnection::TCPConnection(Poller *poller, ConnSocket &socket) : 
   m_state(Connecting),
   m_socket(std::move(socket)),
-  m_channel(poller, m_socket.get_sockfd())
+  m_channel(poller, m_socket.get_sockfd()),
+  m_highWaterMark(64*1024*1024)
 {
   m_channel.set_read_callback(std::bind(&TCPConnection::handle_read, this));
   m_channel.set_close_callback(std::bind(&TCPConnection::handle_close, this));
@@ -45,12 +46,20 @@ void TCPConnection::send(const void *msg, ssize_t len){
     }
     else{
       remaining -= nwrote;
+      if(remaining == 0 && m_writeCompleteCallback){
+        m_writeCompleteCallback(shared_from_this());
+      }
     }
   }
 
   assert(remaining <= len);
   if(remaining > 0){
     size_t oldLen = m_outputBuffer.readable_bytes();
+
+    if(oldLen+remaining >= m_highWaterMark && oldLen < m_highWaterMark && m_highWaterMarkCallback){
+      m_highWaterMarkCallback(shared_from_this(), oldLen+remaining);
+    }
+
     m_outputBuffer.append(static_cast<const char*>(msg)+nwrote, remaining);
     if (!m_channel.is_writing())
     {
@@ -108,6 +117,11 @@ void TCPConnection::handle_write(){
       m_outputBuffer.retrieve(n);
       if(m_outputBuffer.readable_bytes() == 0){
         m_channel.disable_writing();
+
+        if(m_writeCompleteCallback){
+          m_writeCompleteCallback(shared_from_this());
+        }
+
         if(m_state == Disconnecting){
           m_socket.shutdown_write();
         }

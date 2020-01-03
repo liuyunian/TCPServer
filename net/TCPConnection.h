@@ -33,6 +33,14 @@ public:
     m_closeCallback = ccb;
   }
 
+  void set_writeComplete_callback(const WriteCompleteCallback &wccb){
+    m_writeCompleteCallback = wccb;
+  }
+
+  void set_highWaterMask_callback(const HighWaterMarkCallback &hwmcb){
+    m_highWaterMarkCallback = hwmcb;
+  }
+
   void connect_established();
 
   void send(std::string &&msg);
@@ -58,12 +66,16 @@ private:
   ConnSocket m_socket;
   Channel m_channel;
 
+  size_t m_highWaterMark;
+
   Buffer m_inputBuffer;
   Buffer m_outputBuffer;
 
   ConnectionCallback m_connCallback;
   MessageCallback m_messageCallback;
   CloseCallback m_closeCallback;
+  WriteCompleteCallback m_writeCompleteCallback;
+  HighWaterMarkCallback m_highWaterMarkCallback;
 };
 
 #endif // TCPCONNECTION_H_

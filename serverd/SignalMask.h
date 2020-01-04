@@ -3,7 +3,7 @@
 
 #include <tools/base/noncopyable.h>
 
-#include "signal/SignalSet.h"
+#include "serverd/SignalSet.h"
 
 class SignalMask : noncopyable, 
                   public SignalSet

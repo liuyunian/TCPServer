@@ -3,7 +3,7 @@
 
 #include <tools/log/log.h>
 
-#include "signal/SignalSet.h"
+#include "serverd/SignalSet.h"
 
 SignalSet::SignalSet(sigset_t set) : 
   m_sigset(set)
@@ -34,7 +34,7 @@ void SignalSet::fill(){
 }
 
 bool SignalSet::contain(int signo){
-  if(::sigismember(&m_sigset, signo) < 0){
+  if(::sigismember(&m_sigset, signo) == 0){
     return false;
   }
 

@@ -1,5 +1,5 @@
-#ifndef TCPSERVER_H_
-#define TCPSERVER_H_
+#ifndef ACCEPTOR_H_
+#define ACCEPTOR_H_
 
 #include <memory>
 #include <set>
@@ -9,15 +9,15 @@
 #include <tools/poller/Channel.h>
 #include <tools/socket/ServerSocket.h>
 
-#include "net/Callbacks.h"
+#include "serverd/Callbacks.h"
 
 class InetAddress;
 
-class TCPServer : noncopyable {
+class Acceptor : noncopyable {
 public:
-  explicit TCPServer(const InetAddress &localAddr);
+  explicit Acceptor(const InetAddress &localAddr);
 
-  ~TCPServer() = default;
+  ~Acceptor() = default;
 
   void start();
 
@@ -51,4 +51,4 @@ private:
   WriteCompleteCallback m_writeCompleteCallback;
 };
 
-#endif // TCPSERVER_H_
+#endif // ACCEPTOR_H_

@@ -2,7 +2,7 @@
 
 #include <tools/log/log.h>
 
-#include "signal/SignalMask.h"
+#include "serverd/SignalMask.h"
 
 sigset_t get_process_sigset(){
   sigset_t set;

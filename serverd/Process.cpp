@@ -4,10 +4,8 @@
 #include <stdio.h>
 
 #include <tools/log/log.h>
-#include <tools/base/Singleton.h>
-#include <tools/config/ConfigFile.h>
 
-#include "proc/Process.h"
+#include "serverd/Process.h"
 
 Process::Process(const std::string &name, char **argv, const ProcessLoop &loop) : 
     m_name(name),
@@ -18,26 +16,16 @@ Process::Process(const std::string &name, char **argv, const ProcessLoop &loop) 
 void Process::start(bool parentExit){
   m_pid = ::fork();
   if(m_pid == -1){
-    LOG_SYSFATAL("Failed to create child process in Process::start(bool)");
+    LOG_SYSFATAL("fork error in Process::start(bool)");
   }
   else if(m_pid == 0){
     // [1] 设置不屏蔽任何信号
     clear_mask();
 
-    // [2] 关联日志文件
-    ConfigFile &cf = Singleton<ConfigFile>::instance();
-    std::string logFilePath = cf.get<std::string>("LogFilePath");
-    logFilePath.append(m_name);
-    int logFileSize = cf.get<int>("LogFileSize");
-    m_logFile.reset(new LogFile(logFilePath, logFileSize)); // 默认的flushInterval = 3s, checkEveryN = 1024
-    Log::set_level(cf.get<std::string>("LogLevel"));
-    Log::set_output(std::bind(&LogFile::append, m_logFile.get(), std::placeholders::_1, std::placeholders::_2));
-    Log::set_flush(std::bind(&LogFile::flush, m_logFile.get()));
-
-    // [3] 设置标题
+    // [2] 设置标题
     set_title();
 
-    // [4] 进入工作循环
+    // [3] 进入工作循环
     m_loop(shared_from_this());
   }
   else{

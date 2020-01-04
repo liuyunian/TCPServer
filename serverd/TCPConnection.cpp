@@ -3,7 +3,7 @@
 #include <tools/log/log.h>
 #include <tools/poller/Poller.h>
 
-#include "net/TCPConnection.h"
+#include "serverd/TCPConnection.h"
 
 TCPConnection::TCPConnection(Poller *poller, ConnSocket &socket) : 
   m_state(Connecting),

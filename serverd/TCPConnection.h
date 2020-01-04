@@ -9,8 +9,8 @@
 #include <tools/socket/ConnSocket.h>
 #include <tools/poller/Channel.h>
 
-#include "net/Callbacks.h"
-#include "net/Buffer.h"
+#include "serverd/Callbacks.h"
+#include "serverd/Buffer.h"
 
 class Poller;
 

@@ -5,6 +5,7 @@
 #include <map>
 
 #include <tools/base/noncopyable.h>
+#include <tools/config/ConfigFile.h>
 
 #include "serverd/Callbacks.h"
 
@@ -18,10 +19,6 @@ public:
   ~TCPServer(); // force out-line dtor, for std::unique_ptr members.
 
   void start();
-
-  void setNumberOfWorker(int num){
-    m_workerNum = num;
-  }
 
   void set_connection_callback(const ConnectionCallback &ccb){
     m_connCallback = ccb;
@@ -54,11 +51,11 @@ private:
 private:
   const std::string m_name;
   char **m_argv;
+  ConfigFile m_conf;
 
   std::unique_ptr<Acceptor> m_acceptor; // avoid revealing Acceptor
 
   ProcessPtr m_master;
-  int m_workerNum;
   std::map<pid_t, ProcessPtr> m_workers;
 
   ConnectionCallback m_connCallback;

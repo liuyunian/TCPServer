@@ -7,6 +7,7 @@
 #include <sys/wait.h> // waitpid
 
 #include <tools/log/log.h>
+#include <tools/config/ConfigFile.h>
 
 #include "serverd/Process.h"
 #include "serverd/Acceptor.h"
@@ -17,9 +18,12 @@ TCPServer::TCPServer(const std::string &name, char **argv, const InetAddress &lo
   m_name(name),
   m_argv(argv),
   m_acceptor(new Acceptor(localAddr)),
-  m_master(nullptr),
-  m_workerNum(1)
-{}
+  m_master(nullptr)
+{
+  if(!m_conf.load("../serverd.conf")){ // FIXME: 绝对路径
+    LOG_FATAL("Failed to load config file");
+  }
+}
 
 TCPServer::~TCPServer(){}
 
@@ -57,9 +61,13 @@ void TCPServer::master_loop(ProcessPtr master){
   }
 
   // [2] 关联日志文件
-  std::unique_ptr<LogFile> logFile(new LogFile(master->get_name())); // 默认的flushInterval = 3s, checkEveryN = 1024
+  std::string logFilePath = m_conf.get<std::string>("LogFilePath");
+  std::string logLevel = m_conf.get<std::string>("LogLevel");
+  int logFileSize = m_conf.get<int>("LogFileSize");
+  std::unique_ptr<LogFile> logFile(new LogFile(logFilePath.append(master->get_name()), logFileSize)); // 默认的flushInterval = 3s, checkEveryN = 1024
   Log::set_output(std::bind(&LogFile::append, logFile.get(), std::placeholders::_1, std::placeholders::_2));
   Log::set_flush(std::bind(&LogFile::flush, logFile.get()));
+  Log::set_level(logLevel);
 
   // [3] 创建worker进程
   master->set_mask({SIGCHLD,     // 子进程状态改变
@@ -75,7 +83,9 @@ void TCPServer::master_loop(ProcessPtr master){
                   });            // 屏蔽信号，不希望在fork子进程时被信号打断
 
   std::string name(m_name);
-  for(int i = 0; i < m_workerNum; ++ i){
+  int workerNum = m_conf.get<int>("WorkerProcess");
+  assert(workerNum >= 1);
+  for(int i = 0; i < workerNum; ++ i){
     auto worker = std::make_shared<Process>(name.append("(w)"), m_argv, std::bind(&TCPServer::worker_loop, this, std::placeholders::_1));
     m_workers.insert({worker->get_pid(), worker});
     worker->start();
@@ -103,9 +113,13 @@ void TCPServer::worker_loop(ProcessPtr worker){
   worker->set_mask(SIGPIPE);
 
   // [2] 关联日志文件
-  std::unique_ptr<LogFile> logFile(new LogFile(worker->get_name())); // 默认的flushInterval = 3s, checkEveryN = 1024
+  std::string logFilePath = m_conf.get<std::string>("LogFilePath");
+  std::string logLevel = m_conf.get<std::string>("LogLevel");
+  int logFileSize = m_conf.get<int>("LogFileSize");
+  std::unique_ptr<LogFile> logFile(new LogFile(logFilePath.append(worker->get_name()), logFileSize)); // 默认的flushInterval = 3s, checkEveryN = 1024
   Log::set_output(std::bind(&LogFile::append, logFile.get(), std::placeholders::_1, std::placeholders::_2));
   Log::set_flush(std::bind(&LogFile::flush, logFile.get()));
+  Log::set_level(logLevel);
 
   // [3] 运行Acceptor
   m_acceptor->set_connection_callback(m_connCallback);

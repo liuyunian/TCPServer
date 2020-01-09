@@ -2,4 +2,4 @@ ADD_EXECUTABLE(EchoClient EchoClient.cpp)
 TARGET_LINK_LIBRARIES(EchoClient tools_socket tools_log tools_base)
 
 ADD_EXECUTABLE(EchoServer EchoServer.cpp)
-TARGET_LINK_LIBRARIES(EchoServer serverd tools_poller tools_socket tools_log tools_base)
+TARGET_LINK_LIBRARIES(EchoServer serverd tools_poller tools_socket tools_config tools_log tools_base)

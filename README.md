@@ -68,3 +68,13 @@ TCPConnection增加了shutdown()函数，服务器端可以主动关闭连接
 参考muduo网络库给TCPConnection增加了如下两个回调函数，作用是：让上层应用调节发送数据速率，避免数据在本地内存中堆积
 * WriteCommpleteCallback（低水位回调函数）：当直接调用write(2)发送的数据或者输出缓冲区的数据都写入内核发送缓冲区之后则执行该回调
 * HighWaterMaskCallback（高水位回调函数）：当输出缓冲区的数据加上目前要发送的数据大于一个高水位阈值时则执行该回调  
+
+**2020-01-04 网络库模式**  
+之前是按照应用的方式实现，现在改成了网络库架构，具体的改变如下：
+* 将master-worker模式放置在TCPServer类中，只对上层应用暴露TCPServer类
+* 增加Acceptor类，接替原TCPServer功能
+* 打破原有的目录结构，将网络库代码统一放置在serverd目录下
+* 修改构建脚本，编译生成的libserverd.a静态文件
+
+使用signalfd重构了SignalHandler类  
+在examples目录下使用libserverd.a实现常见的TCPServer

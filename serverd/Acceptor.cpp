@@ -13,7 +13,7 @@
 static const int kTimeoutMs = 10000;
 
 Acceptor::Acceptor(const InetAddress &localAddr) : 
-  m_poller(Poller::new_default_Poller()),
+  m_poller(Poller::create_poller()),
   m_serverSocket(localAddr),
   m_listenChannel(m_poller.get(), m_serverSocket.get_sockfd()),
   m_idlefd(::open("/dev/null", O_RDONLY | O_CLOEXEC))

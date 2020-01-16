@@ -24,7 +24,7 @@ void TCPConnection::connect_established(){
   m_connCallback(shared_from_this());
 }
 
-void TCPConnection::send(std::string &&msg){
+void TCPConnection::send(const std::string &msg){
   send(msg.c_str(), static_cast<ssize_t>(msg.size()));
 }
 

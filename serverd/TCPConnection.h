@@ -2,6 +2,7 @@
 #define TCPCONNECTION_H_
 
 #include <memory>
+#include <any>
 
 #include <stdint.h>
 
@@ -41,9 +42,21 @@ public:
     m_highWaterMarkCallback = hwmcb;
   }
 
+  void set_context(const std::any &context){
+    m_context = context;
+  }
+
+  const std::any& get_context() const {
+    return m_context;
+  }
+
+  std::any* get_mutable_context(){
+    return &m_context;
+  }
+
   void connect_established();
 
-  void send(std::string &&msg);
+  void send(const std::string &msg);
   void send(const void *msg, ssize_t len);
 
   void shutdown();
@@ -67,6 +80,8 @@ private:
   Channel m_channel;
 
   size_t m_highWaterMark;
+
+  std::any m_context;
 
   Buffer m_inputBuffer;
   Buffer m_outputBuffer;

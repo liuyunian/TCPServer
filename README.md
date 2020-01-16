@@ -85,3 +85,7 @@ TCPConnection增加了shutdown()函数，服务器端可以主动关闭连接
 * 重构了Process类，使其能作为父类存在
 * 新设计了MasterProcess和WorkerProcess类继承自Process类，并承担了诸多原来存在在TCPServer类中的属性和方法
 * 重新启用配置文件，减少参数传递数量，同时也方便实现热更新功能
+
+**2020-01-16 增加HttpServer示例**  
+参考muduo网络库实现了HttpServer、HttpRequest、HttpResponse等类  
+TCPConnection类中增加了一个std::any成员，根据上层应用需要存放任意类型的数据

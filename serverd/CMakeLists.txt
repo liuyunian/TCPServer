@@ -1,12 +1,14 @@
 # ===================== source =====================
 SET(SERVERD_SRC 
   Acceptor.cpp
+  MasterProcess.cpp
   Process.cpp
   SignalHandler.cpp
   SignalMask.cpp
   SignalSet.cpp
   TCPConnection.cpp
   TCPServer.cpp
+  WorkerProcess.cpp
 )
 
 SET(SERVERD_HDR
@@ -18,7 +20,7 @@ SET(SERVERD_HDR
 
 # ========================= build ==========================
 ADD_LIBRARY(serverd STATIC ${SERVERD_SRC})
-TARGET_LINK_LIBRARIES(serverd tools_poller tools_socket tools_config tools_log tools_base pthread)
+TARGET_LINK_LIBRARIES(serverd tools_cxx pthread)
 
 # ======================== install =========================
 # libserverd.a -- install path = /usr/local/lib

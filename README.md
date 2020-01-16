@@ -73,8 +73,15 @@ TCPConnection增加了shutdown()函数，服务器端可以主动关闭连接
 之前是按照应用的方式实现，现在改成了网络库架构，具体的改变如下：
 * 将master-worker模式放置在TCPServer类中，只对上层应用暴露TCPServer类
 * 增加Acceptor类，接替原TCPServer功能
+* 弃用配置文件
 * 打破原有的目录结构，将网络库代码统一放置在serverd目录下
 * 修改构建脚本，编译生成的libserverd.a静态文件
 
 使用signalfd重构了SignalHandler类  
 在examples目录下使用libserverd.a实现常见的TCPServer
+
+**2020-01-13 重构TCPServer类**  
+之前TCPServer类设计不够优雅，堆积了很多不该属于TCPServer类的属性和方法，因此做了如下重构：
+* 重构了Process类，使其能作为父类存在
+* 新设计了MasterProcess和WorkerProcess类继承自Process类，并承担了诸多原来存在在TCPServer类中的属性和方法
+* 重新启用配置文件，减少参数传递数量，同时也方便实现热更新功能

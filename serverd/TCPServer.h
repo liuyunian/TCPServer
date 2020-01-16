@@ -10,6 +10,7 @@
 #include "serverd/Callbacks.h"
 
 class Acceptor;
+class MasterProcess;
 class InetAddress;
 
 class TCPServer : noncopyable {
@@ -33,30 +34,14 @@ public:
   }
 
 private:
-  void master_loop(ProcessPtr master);
-
-  void worker_loop(ProcessPtr worker);
-
-  /**
-   * @brief SIGCHLD信号处理函数
-  */
-  void get_status();
-
-  /**
-   * @brief SIGHUP信号处理函数
-   * @TODO 
-  */
-  void handle_sighup();
+  void worker_loop();
 
 private:
   const std::string m_name;
-  char **m_argv;
-  ConfigFile m_conf;
 
   std::unique_ptr<Acceptor> m_acceptor; // avoid revealing Acceptor
 
-  ProcessPtr m_master;
-  std::map<pid_t, ProcessPtr> m_workers;
+  std::unique_ptr<MasterProcess> m_master;
 
   ConnectionCallback m_connCallback;
   MessageCallback m_messageCallback;

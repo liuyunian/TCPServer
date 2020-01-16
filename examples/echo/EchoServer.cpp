@@ -13,24 +13,39 @@
 #include <serverd/TCPServer.h>
 #include <serverd/TCPConnection.h>
 
-static void 
-onConnection(const TCPConnectionPtr& tcpc){
-  LOG_INFO("onConnection(): pid = %d", getpid());
-}
+class EchoServer : noncopyable {
+public:
+  EchoServer(char **argv, const InetAddress &addr) : m_server("echo", argv, addr){
+    m_server.set_connection_callback(std::bind(&EchoServer::onConnection, this, std::placeholders::_1));
+    m_server.set_message_callback(std::bind(&EchoServer::onMessage, this, std::placeholders::_1, std::placeholders::_2));
+  }
 
-static void 
-onMessage(const TCPConnectionPtr& tcpc, Buffer *buf){
-  LOG_INFO("onMessage(): pid = %d, received %d bytes from connection", getpid(), buf->readable_bytes());
-  tcpc->send(buf->retrieve_all_as_string());
-}
+  ~EchoServer() = default;
+
+  void start(){
+    LOG_INFO("EchoServer is running");
+    m_server.start();
+  }
+
+  void onConnection(const TCPConnectionPtr& tcpc){
+    LOG_INFO("onConnection(): pid = %d", getpid());
+  }
+
+  void onMessage(const TCPConnectionPtr& tcpc, Buffer *buf){
+    LOG_INFO("onMessage(): pid = %d, received %d bytes from connection", getpid(), buf->readable_bytes());
+    tcpc->send(buf->retrieve_all_as_string());
+  }
+
+private:
+  TCPServer m_server;
+};
 
 #define PORT 9000
 
 int main(int argc, char* argv[]){
   InetAddress addr(PORT);
-  TCPServer server("echo", argv, addr);
-  server.set_connection_callback(onConnection);
-  server.set_message_callback(onMessage);
+  EchoServer server(argv, addr);
+
   server.start();
 
   return 0;

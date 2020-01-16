@@ -1,39 +1,18 @@
 #include <string.h> // memset
-#include <unistd.h> // fork
-#include <stdlib.h> // environ
-#include <stdio.h>
+#include <unistd.h> // environ
 
+#include <tools/base/Singleton.h>
+#include <tools/config/ConfigFile.h>
 #include <tools/log/log.h>
 
 #include "serverd/Process.h"
 
-Process::Process(const std::string &name, char **argv, const ProcessLoop &loop) : 
-    m_name(name),
-    m_argv(argv),
-    m_loop(std::move(loop))
-{}
+Process::Process(const std::string &name, char **argv) : 
+  m_name(name),
+  m_argv(argv),
+  m_logFile(nullptr){}
 
-void Process::start(bool parentExit){
-  m_pid = ::fork();
-  if(m_pid == -1){
-    LOG_SYSFATAL("fork error in Process::start(bool)");
-  }
-  else if(m_pid == 0){
-    // [1] 设置不屏蔽任何信号
-    clear_mask();
-
-    // [2] 设置标题
-    set_title();
-
-    // [3] 进入工作循环
-    m_loop(shared_from_this());
-  }
-  else{
-    if(parentExit){
-      exit(0);
-    }
-  }
-}
+Process::~Process(){}
 
 void Process::set_title(){
   // 将环境变量复制到新创建的空间
@@ -76,4 +55,15 @@ void Process::set_mask(const std::initializer_list<int> &signals){
 void Process::clear_mask(){
   m_mask.clear();
   m_mask.update();
-} 
+}
+
+void Process::set_log(){
+  ConfigFile &cf = Singleton<ConfigFile>::instance();
+  std::string logFilePath = cf.get<std::string>("LogFilePath");
+  std::string logLevel = cf.get<std::string>("LogLevel");
+  int logFileSize = cf.get<int>("LogFileSize");
+  m_logFile.reset(new LogFile(logFilePath.append(get_name()), logFileSize)); // 默认的flushInterval = 3s, checkEveryN = 1024
+  Log::set_output(std::bind(&LogFile::append, m_logFile.get(), std::placeholders::_1, std::placeholders::_2));
+  Log::set_flush(std::bind(&LogFile::flush, m_logFile.get()));
+  Log::set_level(logLevel);
+}
